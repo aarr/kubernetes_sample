@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-multi-container
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: multi-container
+  template:
+    metadata:
+      labels:
+        # name of Pod
+        app: multi-container
+    spec:
+      containers:
+      # after 30sec, sleep contaier stop and restart
+      - command:
+        - /bin/sh
+        - -c
+        - echo 'start sleep';
+          sleep 30;
+          echo 'end sleep';
+        image: busybox
+        name: sleep
+        ports:
+        - containerPort: 80
+        resources: {}
+      - image: gcr.io/google-samples/hello-app:1.0
+        name: helloworld
+        ports:
+        - containerPort: 8080
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+status: {}

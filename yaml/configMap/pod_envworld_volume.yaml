@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: envworld
+  name: envworld
+spec:
+  containers:
+  - env:
+    # name of ENV ARG
+    - name: TEST_ENV
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: TEST_ENV
+    command:
+      - /bin/sh
+      - -c
+      - echo 'start sleep';
+        cat /my-config/TEST_ENV/keys;
+        echo;
+        echo 'ENV VALUE:' $TEST_ENV;
+        sleep 30;
+        echo 'end sleep'
+    image: busybox
+    name: sleep
+    ports:
+      - containerPort: 8080
+    resources: {}
+    volumeMounts:
+    # select volume name
+    # mount path in container
+    - name: my-config-volume
+      mountPath: /my-config/TEST_ENV
+  # define volume
+  volumes:
+    - name: my-config-volume
+      configMap:
+        name: my-config
+        items:
+          - key: TEST_ENV
+            path: keys
+          - key: TEST_ENV2
+            path: keys
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

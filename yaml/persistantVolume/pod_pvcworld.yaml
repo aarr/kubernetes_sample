@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pvworld
+  name: pvworld
+spec:
+  containers:
+  - env:
+    # name of ENV ARG
+    - name: TEST_ENV
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: TEST_ENV
+    command:
+      - /bin/sh
+      - -c
+      - echo 'start sleep';
+        cat /mnt/container/pvc/hello_world.txt;
+        echo;
+        date > /mnt/container/pvc/fromContainer.txt;
+        sleep 30;
+        echo 'end sleep'
+    image: busybox
+    name: sleep
+    ports:
+      - containerPort: 8080
+    resources: {}
+    volumeMounts:
+    # select volume name
+    # mount path in container
+    - name: my-pv
+      mountPath: /mnt/container/pvc
+  # define volume
+  volumes:
+    - name: my-pv
+      persistentVolumeClaim:
+        claimName: pvc
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
